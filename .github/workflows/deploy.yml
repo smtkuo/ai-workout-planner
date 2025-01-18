@@ -63,8 +63,9 @@ jobs:
 
       - name: Static files setup
         run: |
+          mkdir -p ./out
           touch ./out/.nojekyll
-          cp public/CNAME ./out/ || true
+          [ -f public/CNAME ] && cp public/CNAME ./out/ || true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
