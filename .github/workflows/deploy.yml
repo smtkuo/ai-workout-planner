@@ -1,4 +1,5 @@
-name: Deploy to GitHub Pages
+# Sample workflow for building and deploying a Next.js site to GitHub Pages
+name: Deploy Next.js site to Pages
 
 on:
   push:
@@ -14,29 +15,50 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
-env:
-  NEXT_TELEMETRY_DISABLED: 1
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Detect package manager
+        id: detect-package-manager
+        run: |
+          if [ -f "${{ github.workspace }}/yarn.lock" ]; then
+            echo "manager=yarn" >> $GITHUB_OUTPUT
+            echo "command=install" >> $GITHUB_OUTPUT
+            echo "runner=yarn" >> $GITHUB_OUTPUT
+            exit 0
+          elif [ -f "${{ github.workspace }}/package.json" ]; then
+            echo "manager=npm" >> $GITHUB_OUTPUT
+            echo "command=ci" >> $GITHUB_OUTPUT
+            echo "runner=npx --no-install" >> $GITHUB_OUTPUT
+            exit 0
+          else
+            echo "Unable to determine package manager"
+            exit 1
+          fi
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
-          cache: npm
+          cache: ${{ steps.detect-package-manager.outputs.manager }}
 
       - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v4
         with:
-          enablement: true
+          static_site_generator: next
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
 
       - name: Create ESLint config
         run: |
@@ -48,25 +70,24 @@ jobs:
             }
           }' > .eslintrc.json
 
+      - name: Install dependencies
+        run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
+
       - name: Build with Next.js
-        run: npm run build
+        run: ${{ steps.detect-package-manager.outputs.runner }} next build
         env:
           NODE_ENV: production
-          NEXT_LINT_DURING_BUILD: false
           DISABLE_ESLINT_PLUGIN: true
 
-      - name: Fix static files
+      - name: Static files setup
         run: |
-          cp -r dist/* .
-          cp public/CNAME .
-          touch .nojekyll
-          cp 404.html 404/index.html || true
-          find . -type f -name "*.html" -not -name "404.html" -exec sh -c 'mkdir -p "$(dirname "$0")" && cp "$0" "$(dirname "$0")/index.html"' {} \;
+          touch ./out/.nojekyll
+          cp public/CNAME ./out/ || true
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: ./out
 
   deploy:
     environment:
@@ -77,4 +98,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2 
+        uses: actions/deploy-pages@v4 
