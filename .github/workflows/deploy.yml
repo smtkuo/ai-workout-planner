@@ -23,41 +23,40 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: "18"
           cache: npm
+
       - name: Setup Pages
         uses: actions/configure-pages@v3
         with:
           enablement: true
+
       - name: Install dependencies
         run: npm ci
-      - name: Create .eslintrc.json
-        run: |
-          echo '{
-            "extends": "next/core-web-vitals",
-            "rules": {
-              "@typescript-eslint/no-explicit-any": "off",
-              "react/no-unescaped-entities": "off"
-            }
-          }' > .eslintrc.json
+
       - name: Build with Next.js
         run: npm run build
         env:
-          NEXT_LINT_DURING_BUILD: false
           NODE_ENV: production
-          DISABLE_ESLINT_PLUGIN: true
-      - name: Fix routing
+          NEXT_PUBLIC_BASE_PATH: ""
+
+      - name: Fix static files
         run: |
-          cp public/CNAME out/
-          cp out/404.html out/404/index.html
-          find out -type f -name "*.html" -not -name "404.html" -exec sh -c 'mkdir -p "${0%/*}" && cp "$0" "${0%/*}/index.html"' {} \;
+          mkdir -p dist
+          cp -r out/* dist/
+          cp public/CNAME dist/
+          touch dist/.nojekyll
+          cp dist/404.html dist/404/index.html
+          find dist -type f -name "*.html" -not -name "404.html" -exec sh -c 'mkdir -p "$(dirname "$0")" && cp "$0" "$(dirname "$0")/index.html"' {} \;
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: ./out
+          path: ./dist
 
   deploy:
     environment:
