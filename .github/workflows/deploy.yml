@@ -57,7 +57,7 @@ jobs:
 
       - name: Fix static files
         run: |
-          cp -r out/* .
+          cp -r dist/* .
           cp public/CNAME .
           touch .nojekyll
           cp 404.html 404/index.html || true
