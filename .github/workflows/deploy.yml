@@ -61,11 +61,17 @@ jobs:
           NODE_ENV: production
           DISABLE_ESLINT_PLUGIN: true
 
+      - name: Create CNAME
+        run: |
+          echo "ai-workout-planner.projelerim.tr" > public/CNAME
+
       - name: Static files setup
         run: |
           mkdir -p ./out
           touch ./out/.nojekyll
-          [ -f public/CNAME ] && cp public/CNAME ./out/ || true
+          cp public/CNAME ./out/
+          cp -r dist/* ./out/
+          find ./out -type f -name "*.html" -exec sh -c 'mkdir -p "$(dirname "$0")/$(basename "$0" .html)" && cp "$0" "$(dirname "$0")/$(basename "$0" .html)/index.html"' {} \;
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
