@@ -1,9 +1,6 @@
-import dynamic from 'next/dynamic'
+'use client';
 
-const WorkoutPlannerAPI = dynamic(
-  () => import('@/components/workout-planner/workout-planner-api'),
-  { ssr: false }
-)
+import WorkoutPlannerAPI from '@/components/workout-planner/workout-planner-api'
 
 export default function Home() {
   return (

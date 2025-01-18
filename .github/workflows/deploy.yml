@@ -42,21 +42,19 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
-          NEXT_PUBLIC_BASE_PATH: ""
 
       - name: Fix static files
         run: |
-          mkdir -p dist
-          cp -r out/* dist/
-          cp public/CNAME dist/
-          touch dist/.nojekyll
-          cp dist/404.html dist/404/index.html
-          find dist -type f -name "*.html" -not -name "404.html" -exec sh -c 'mkdir -p "$(dirname "$0")" && cp "$0" "$(dirname "$0")/index.html"' {} \;
+          cp -r out/* .
+          cp public/CNAME .
+          touch .nojekyll
+          cp 404.html 404/index.html || true
+          find . -type f -name "*.html" -not -name "404.html" -exec sh -c 'mkdir -p "$(dirname "$0")" && cp "$0" "$(dirname "$0")/index.html"' {} \;
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: ./dist
+          path: .
 
   deploy:
     environment:

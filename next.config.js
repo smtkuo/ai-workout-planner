@@ -8,12 +8,6 @@ const nextConfig = {
   trailingSlash: true,
   distDir: 'dist',
   basePath: '',
-  experimental: {
-    appDir: true,
-  },
-  compiler: {
-    removeConsole: process.env.NODE_ENV === "production",
-  }
 }
 
 module.exports = nextConfig 
