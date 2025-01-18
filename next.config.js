@@ -6,12 +6,14 @@ const nextConfig = {
   },
   reactStrictMode: true,
   trailingSlash: true,
-  eslint: {
-    ignoreDuringBuilds: true,
+  distDir: 'dist',
+  basePath: '',
+  experimental: {
+    appDir: true,
   },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
+  }
 }
 
 module.exports = nextConfig 
