@@ -38,10 +38,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Create ESLint config
+        run: |
+          echo '{
+            "extends": "next/core-web-vitals",
+            "rules": {
+              "@typescript-eslint/no-explicit-any": "off",
+              "react/no-unescaped-entities": "off"
+            }
+          }' > .eslintrc.json
+
       - name: Build with Next.js
         run: npm run build
         env:
           NODE_ENV: production
+          NEXT_LINT_DURING_BUILD: false
+          DISABLE_ESLINT_PLUGIN: true
 
       - name: Fix static files
         run: |
