@@ -38,8 +38,11 @@ jobs:
         run: npm run build
         env:
           NEXT_LINT_DURING_BUILD: false
-      - name: Copy CNAME
-        run: cp public/CNAME out/
+          NODE_ENV: production
+      - name: Copy CNAME and other files
+        run: |
+          cp public/CNAME out/
+          cp out/404.html out/index.html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
