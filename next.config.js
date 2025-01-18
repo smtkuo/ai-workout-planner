@@ -5,8 +5,7 @@ const nextConfig = {
     unoptimized: true,
   },
   reactStrictMode: true,
-  assetPrefix: '/',
-  basePath: '',
+  trailingSlash: true,
   eslint: {
     ignoreDuringBuilds: true,
   },

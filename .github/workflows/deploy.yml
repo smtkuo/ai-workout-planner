@@ -49,10 +49,11 @@ jobs:
           NEXT_LINT_DURING_BUILD: false
           NODE_ENV: production
           DISABLE_ESLINT_PLUGIN: true
-      - name: Copy CNAME and other files
+      - name: Fix routing
         run: |
           cp public/CNAME out/
-          cp out/404.html out/index.html
+          cp out/404.html out/404/index.html
+          find out -type f -name "*.html" -not -name "404.html" -exec sh -c 'mkdir -p "${0%/*}" && cp "$0" "${0%/*}/index.html"' {} \;
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
